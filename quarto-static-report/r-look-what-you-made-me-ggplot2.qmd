@@ -1,9 +1,19 @@
 ---
 title: "Look what you made me {ggplot2}"
-format: html
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-title: "Track List"
+    code-fold: true
+    code-summary: "Show the lyrics behind the magic"
+    title-block-banner: true
+    title-block-banner-color: "#FF69B4"
+    fontsize: 1.1em
 ---
 
-## load packages & setup
+## The Setup (Ready For It?)
 
 ```{r}
 #| warning: false
@@ -23,9 +33,9 @@ ts_songs <- taylor::taylor_album_songs |>
     mutate(single = ifelse(is.na(single_release), 'No', "Yes"))
 ```
 
-## Can we see patterns in the types of songs Taylor Swift releases as singles?
+## Do Taylor Swift singles have a pattern?
 
-#### Are songs that are more "danceable" or have a greater tempo or more likely to be selected as singles.
+#### Are songs selected to be released as singles more "danceable" or use a faster tempo? I would guess those are key characteristics of single releases.
 
 ```{r}
 #| warning: false
@@ -105,9 +115,8 @@ ts_songs |>
     )
 ```
 
-#### Let's do a quick check on the differences...
+#### Less that 15% or 30 total songs are singles, that's less than I expected.  Let's do a quick check on the differences...
 
-First, we will look at Danceability
 
 ```{r}
 #| code-fold: true
@@ -147,4 +156,4 @@ results_summary |>
   )
 ```
 
-My guess about singles being faster was incorrect, overall the average tempo rating was lower for singles.  That said, does not appear to be a difference I would label as compelling evidence of a true difference.
+My guess that singles being faster or more danceable was incorrect, it appears.  Overall the average tempo rating was lower for singles.  In both cases, nothing to suggest there is a true difference.

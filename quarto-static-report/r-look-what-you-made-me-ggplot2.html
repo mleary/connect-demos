@@ -68,58 +68,90 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="r-look-what-you-made-me-ggplot2_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="r-look-what-you-made-me-ggplot2_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="r-look-what-you-made-me-ggplot2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="r-look-what-you-made-me-ggplot2_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="r-look-what-you-made-me-ggplot2_files/libs/bootstrap/bootstrap-36fdccf44042aabdbe491d587356457f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: #FF69B4;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: #FF69B4;
+      }
+</style>
 
 
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="fullcontent quarto-light">
+<body class="quarto-light">
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Look what you made me {ggplot2}</h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Look what you made me {ggplot2}</h1>
+                      </div>
   </div>
+    
   
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Track List</h2>
+   
+  <ul>
+  <li><a href="#the-setup-ready-for-it" id="toc-the-setup-ready-for-it" class="nav-link active" data-scroll-target="#the-setup-ready-for-it">The Setup (Ready For It?)</a></li>
+  <li><a href="#do-taylor-swift-singles-have-a-pattern" id="toc-do-taylor-swift-singles-have-a-pattern" class="nav-link" data-scroll-target="#do-taylor-swift-singles-have-a-pattern">Do Taylor Swift singles have a pattern?</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
-</header>
 
 
-<section id="load-packages-setup" class="level2">
-<h2 class="anchored" data-anchor-id="load-packages-setup">load packages &amp; setup</h2>
+
+<section id="the-setup-ready-for-it" class="level2">
+<h2 class="anchored" data-anchor-id="the-setup-ready-for-it">The Setup (Ready For It?)</h2>
 <div class="cell">
+<details class="code-fold">
+<summary>Show the lyrics behind the magic</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(taylor)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <div class="cell">
 <details class="code-fold">
-<summary>Code</summary>
+<summary>Show the lyrics behind the magic</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ts_songs <span class="ot">&lt;-</span> taylor<span class="sc">::</span>taylor_album_songs <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">single =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(single_release), <span class="st">'No'</span>, <span class="st">"Yes"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="can-we-see-patterns-in-the-types-of-songs-taylor-swift-releases-as-singles" class="level2">
-<h2 class="anchored" data-anchor-id="can-we-see-patterns-in-the-types-of-songs-taylor-swift-releases-as-singles">Can we see patterns in the types of songs Taylor Swift releases as singles?</h2>
-<section id="are-songs-that-are-more-danceable-or-have-a-greater-tempo-or-more-likely-to-be-selected-as-singles." class="level4">
-<h4 class="anchored" data-anchor-id="are-songs-that-are-more-danceable-or-have-a-greater-tempo-or-more-likely-to-be-selected-as-singles.">Are songs that are more “danceable” or have a greater tempo or more likely to be selected as singles.</h4>
+<section id="do-taylor-swift-singles-have-a-pattern" class="level2">
+<h2 class="anchored" data-anchor-id="do-taylor-swift-singles-have-a-pattern">Do Taylor Swift singles have a pattern?</h2>
+<section id="are-songs-that-are-more-danceable-or-have-a-faster-tempo-more-likely-to-be-selected-as-singles-one-could-reasonable-guess-those-are-key-characteristics-of-single-releases." class="level4">
+<h4 class="anchored" data-anchor-id="are-songs-that-are-more-danceable-or-have-a-faster-tempo-more-likely-to-be-selected-as-singles-one-could-reasonable-guess-those-are-key-characteristics-of-single-releases.">Are songs that are more “danceable” or have a faster tempo more likely to be selected as singles? One could reasonable guess those are key characteristics of single releases.</h4>
 <div class="cell">
+<details class="code-fold">
+<summary>Show the lyrics behind the magic</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ts_songs <span class="sc">|&gt;</span>  </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> danceability, <span class="at">y =</span> single, <span class="at">fill =</span> single)) <span class="sc">+</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
@@ -136,6 +168,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Danceability rating"</span>, </span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Released as a single?"</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -146,7 +179,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <details class="code-fold">
-<summary>Code</summary>
+<summary>Show the lyrics behind the magic</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ts_songs <span class="sc">|&gt;</span>  </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> tempo, <span class="at">y =</span> single, <span class="at">fill =</span> single)) <span class="sc">+</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
@@ -177,7 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="we-are-not-seeing-a-clear-pattern-visually-lets-do-a-sanity-check.-how-many-songs-are-singles">We are not seeing a clear pattern visually, lets do a sanity check. How many songs ARE singles?</h4>
 <div class="cell">
 <details class="code-fold">
-<summary>Code</summary>
+<summary>Show the lyrics behind the magic</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ts_songs <span class="sc">|&gt;</span> </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(single) <span class="sc">|&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
@@ -218,47 +251,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="lets-do-a-quick-check-on-the-differences" class="level4">
-<h4 class="anchored" data-anchor-id="lets-do-a-quick-check-on-the-differences">Let’s do a quick check on the differences…</h4>
-<p>First, we will look at Danceability</p>
+<section id="less-that-15-or-30-total-songs-are-singles-thats-less-than-i-expected.-lets-do-a-quick-check-on-the-differences" class="level4">
+<h4 class="anchored" data-anchor-id="less-that-15-or-30-total-songs-are-singles-thats-less-than-i-expected.-lets-do-a-quick-check-on-the-differences">Less that 15% or 30 total songs are singles, that’s less than I expected. Let’s do a quick check on the differences…</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a comprehensive comparison table</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)  <span class="co"># Add this to your setup chunk instead</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>audio_features <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"danceability"</span>, <span class="st">"tempo"</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>results_summary <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(audio_features, <span class="cf">function</span>(feature) {</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use standard column indexing instead of .data</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  feature_data <span class="ot">&lt;-</span> ts_songs[[feature]]</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  single_data <span class="ot">&lt;-</span> ts_songs<span class="sc">$</span>single</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove rows where the feature is NA</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  complete_cases <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(feature_data)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  feature_clean <span class="ot">&lt;-</span> feature_data[complete_cases]</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  single_clean <span class="ot">&lt;-</span> single_data[complete_cases]</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  t_result <span class="ot">&lt;-</span> <span class="fu">t.test</span>(feature_clean <span class="sc">~</span> single_clean)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">feature =</span> feature,</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">singles_mean =</span> t_result<span class="sc">$</span>estimate[<span class="dv">2</span>],</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_singles_mean =</span> t_result<span class="sc">$</span>estimate[<span class="dv">1</span>],</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">difference =</span> t_result<span class="sc">$</span>estimate[<span class="dv">2</span>] <span class="sc">-</span> t_result<span class="sc">$</span>estimate[<span class="dv">1</span>],</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> t_result<span class="sc">$</span>p.value,</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">significant =</span> <span class="fu">ifelse</span>(t_result<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.05</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span>)</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>results_summary <span class="sc">|&gt;</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="fu">c</span>(singles_mean, non_singles_mean, difference), <span class="sc">~</span><span class="fu">round</span>(.x, <span class="dv">3</span>)),</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> <span class="fu">round</span>(p_value, <span class="dv">3</span>)</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Feature"</span>, <span class="st">"Singles Mean"</span>, <span class="st">"Non-Singles Mean"</span>, <span class="st">"Difference"</span>, <span class="st">"P-value"</span>, <span class="st">"Significant?"</span>),</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Statistical comparison of audio features between singles and non-singles"</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Show the lyrics behind the magic</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>audio_features <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"danceability"</span>, <span class="st">"tempo"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>results_summary <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(audio_features, <span class="cf">function</span>(feature) {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use standard column indexing instead of .data</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  feature_data <span class="ot">&lt;-</span> ts_songs[[feature]]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  single_data <span class="ot">&lt;-</span> ts_songs<span class="sc">$</span>single</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove rows where the feature is NA</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  complete_cases <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(feature_data)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  feature_clean <span class="ot">&lt;-</span> feature_data[complete_cases]</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  single_clean <span class="ot">&lt;-</span> single_data[complete_cases]</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  t_result <span class="ot">&lt;-</span> <span class="fu">t.test</span>(feature_clean <span class="sc">~</span> single_clean)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">feature =</span> feature,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">singles_mean =</span> t_result<span class="sc">$</span>estimate[<span class="dv">2</span>],</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">non_singles_mean =</span> t_result<span class="sc">$</span>estimate[<span class="dv">1</span>],</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">difference =</span> t_result<span class="sc">$</span>estimate[<span class="dv">2</span>] <span class="sc">-</span> t_result<span class="sc">$</span>estimate[<span class="dv">1</span>],</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> t_result<span class="sc">$</span>p.value,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">significant =</span> <span class="fu">ifelse</span>(t_result<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.05</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>results_summary <span class="sc">|&gt;</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="fu">c</span>(singles_mean, non_singles_mean, difference), <span class="sc">~</span><span class="fu">round</span>(.x, <span class="dv">3</span>)),</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_value =</span> <span class="fu">round</span>(p_value, <span class="dv">3</span>)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Feature"</span>, <span class="st">"Singles Mean"</span>, <span class="st">"Non-Singles Mean"</span>, <span class="st">"Difference"</span>, <span class="st">"P-value"</span>, <span class="st">"Significant?"</span>),</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Statistical comparison of audio features between singles and non-singles"</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Statistical comparison of audio features between singles and non-singles</caption>
@@ -301,6 +332,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </div>
 </div>
+<p>My guess that singles being faster or more danceable was incorrect, it appears. Overall the average tempo rating was lower for singles. In both cases, nothing to suggest there is a true difference.</p>
 </section>
 </section>
 

@@ -11,6 +11,7 @@ format:
     title-block-banner: true
     title-block-banner-color: "#FF69B4"
     fontsize: 1.1em
+    embed-resources: true
 ---
 
 ## The Setup (Ready For It?)

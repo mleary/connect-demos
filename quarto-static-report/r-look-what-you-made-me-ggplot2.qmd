@@ -1,0 +1,150 @@
+---
+title: "Look what you made me {ggplot2}"
+format: html
+---
+
+## load packages & setup
+
+```{r}
+#| warning: false
+#| #| code-fold: true
+
+library(taylor)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(purrr)
+```
+
+```{r}
+#| code-fold: true
+
+ts_songs <- taylor::taylor_album_songs |> 
+    mutate(single = ifelse(is.na(single_release), 'No', "Yes"))
+```
+
+## Can we see patterns in the types of songs Taylor Swift releases as singles?
+
+#### Are songs that are more "danceable" or have a greater tempo or more likely to be selected as singles.
+
+```{r}
+#| warning: false
+#| #| code-fold: true
+ts_songs |>  
+    ggplot(aes(x = danceability, y = single, fill = single)) +
+    geom_boxplot(alpha = 0.8) +
+    scale_fill_taylor_d(album = "Lover") +  # Use Lover album colors
+    theme_minimal() +
+    theme(
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12, color = "gray60"),
+        legend.position = "none"  # Remove legend since y-axis already shows the categories
+    ) +
+    labs(
+        title = "Danceability of Taylor Swift Songs",
+        subtitle = "Comparing singles vs. non-singles",
+        x = "Danceability rating", 
+        y = "Released as a single?"
+    )
+```
+
+```{r}
+#| warning: false
+#| code-fold: true
+ts_songs |>  
+    ggplot(aes(x = tempo, y = single, fill = single)) +
+    geom_boxplot(alpha = 0.8) +
+    scale_fill_taylor_d(album = "Lover") +  # Use Lover album colors
+    theme_minimal() +
+    theme(
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12, color = "gray60"),
+        legend.position = "none"  # Remove legend since y-axis already shows the categories
+    ) +
+    labs(
+        title = "Tempo of Taylor Swift Songs",
+        subtitle = "Comparing singles vs. non-singles",
+        x = "Tempo (BPM)", 
+        y = "Released as a single?"
+    )
+```
+
+#### We are not seeing a clear pattern visually, lets do a sanity check. How many songs ARE singles?
+
+```{r}
+#| code-fold: true
+ts_songs |> 
+    count(single) |>
+    mutate(
+        percent = n / sum(n) * 100,
+        label = paste0(n, " songs")
+    ) |>
+    ggplot(aes(y = single, x = n, fill = single)) +
+    geom_col(alpha = 0.8) +
+    geom_text(aes(label = label), 
+              hjust = -0.1, 
+              size = 3.5, 
+              color = "black") +
+    scale_fill_taylor_d(album = "Lover") +
+    scale_x_continuous(
+        labels = function(x) paste0(round(x / sum(ts_songs |> count(single) |> pull(n)) * 100), "%"),
+        breaks = seq(0, 240, by = 48),  # 20% increments (48 songs = 20% of 240)
+        expand = expansion(mult = c(0, 0.15))
+    ) +
+    theme_minimal() +
+    theme(
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12, color = "gray60"),
+        legend.position = "none"
+    ) +
+    labs(
+        title = "Distribution of Taylor Swift Songs",
+        subtitle = "Singles vs. non-singles in her discography",
+        x = "Percent of songs", 
+        y = "Released as a single?"
+    )
+```
+
+#### Let's do a quick check on the differences...
+
+First, we will look at Danceability
+
+```{r}
+#| code-fold: true
+
+audio_features <- c("danceability", "tempo")
+
+results_summary <- map_dfr(audio_features, function(feature) {
+  # Use standard column indexing instead of .data
+  feature_data <- ts_songs[[feature]]
+  single_data <- ts_songs$single
+  
+  # Remove rows where the feature is NA
+  complete_cases <- !is.na(feature_data)
+  feature_clean <- feature_data[complete_cases]
+  single_clean <- single_data[complete_cases]
+  
+  t_result <- t.test(feature_clean ~ single_clean)
+  
+  tibble(
+    feature = feature,
+    singles_mean = t_result$estimate[2],
+    non_singles_mean = t_result$estimate[1],
+    difference = t_result$estimate[2] - t_result$estimate[1],
+    p_value = t_result$p.value,
+    significant = ifelse(t_result$p.value < 0.05, "Yes", "No")
+  )
+})
+
+results_summary |>
+  mutate(
+    across(c(singles_mean, non_singles_mean, difference), ~round(.x, 3)),
+    p_value = round(p_value, 3)
+  ) |>
+  knitr::kable(
+    col.names = c("Feature", "Singles Mean", "Non-Singles Mean", "Difference", "P-value", "Significant?"),
+    caption = "Statistical comparison of audio features between singles and non-singles"
+  )
+```
+
+My guess about singles being faster was incorrect, overall the average tempo rating was lower for singles.  That said, does not appear to be a difference I would label as compelling evidence of a true difference.

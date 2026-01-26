@@ -10,11 +10,13 @@ business intelligence scoring capabilities.
 """
 
 import csv
+import os
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import FastAPI
 from fastmcp import FastMCP
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
 
 # Initialize the MCP server
 mcp = FastMCP(
@@ -324,13 +326,133 @@ def top_states(
     }
 
 
-# Create MCP HTTP app and mount in FastAPI
+@mcp.custom_route("/", methods=["GET"])
+async def landing_page(request: Request) -> HTMLResponse:
+    """Serve a landing page with server info and setup instructions."""
+    # List our known tools directly
+    tool_info = [
+        ("get_opportunity_score", "Get business opportunity score for a state/corp_type/emp_size"),
+        ("list_states", "List all valid US states"),
+        ("list_corp_types", "List all valid corporation types"),
+        ("list_emp_sizes", "List all valid employee size categories"),
+        ("compare_states", "Compare scores across multiple states"),
+        ("top_states", "Get top N states by opportunity score"),
+    ]
+
+    tools_html = "<ul>"
+    for name, desc in tool_info:
+        tools_html += f"<li><code>{name}</code> - {desc}</li>"
+    tools_html += "</ul>"
+
+    # Build base URL accounting for proxy
+    forwarded_proto = request.headers.get("x-forwarded-proto", request.url.scheme)
+    forwarded_host = request.headers.get("x-forwarded-host", request.url.netloc)
+    current_path = str(request.url.path).rstrip("/")
+    base_url = f"{forwarded_proto}://{forwarded_host}{current_path}"
+    mcp_url = f"{base_url}/mcp"
+
+    # Detect if running on Posit Connect
+    is_posit_connect = bool(os.getenv("CONNECT_SERVER"))
+
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Business Opportunity Score MCP Server</title>
+        <style>
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 2rem;
+                line-height: 1.6;
+                color: #333;
+            }}
+            h1 {{ color: #1a1a1a; border-bottom: 2px solid #0066cc; padding-bottom: 0.5rem; }}
+            h2 {{ color: #444; margin-top: 2rem; }}
+            h3 {{ color: #666; margin-top: 1.5rem; }}
+            code {{
+                background: #f4f4f4;
+                padding: 0.2rem 0.4rem;
+                border-radius: 3px;
+                font-size: 0.9em;
+            }}
+            pre {{
+                background: #f4f4f4;
+                padding: 1rem;
+                border-radius: 5px;
+                overflow-x: auto;
+            }}
+            .endpoint {{
+                background: #e7f3ff;
+                padding: 1rem;
+                border-radius: 5px;
+                margin: 1rem 0;
+                border-left: 4px solid #0066cc;
+            }}
+            .warning {{
+                background: #fff3e0;
+                padding: 1rem;
+                border-radius: 5px;
+                margin: 1rem 0;
+                border-left: 4px solid #ff9800;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Business Opportunity Score MCP Server</h1>
+        <p>This is a <a href="https://modelcontextprotocol.io">Model Context Protocol (MCP)</a> server
+        that provides business opportunity scores based on US Census Bureau data.</p>
+
+        <h2>MCP Endpoint</h2>
+        <div class="endpoint">
+            <strong>URL:</strong> <code>{mcp_url}</code>
+        </div>
+
+        {"<div class='warning'><strong>Authentication Required:</strong> This server is running on Posit Connect. You must include your Connect API key in requests.</div>" if is_posit_connect else ""}
+
+        <h2>Setup Instructions</h2>
+
+        {f'''<h3>Getting a Posit Connect API Key</h3>
+        <ol>
+            <li>Log in to Posit Connect</li>
+            <li>Click your username in the top right corner</li>
+            <li>Select "API Keys"</li>
+            <li>Click "New API Key" and give it a name</li>
+            <li>Copy the key (you won't be able to see it again)</li>
+        </ol>''' if is_posit_connect else ""}
+
+        <h3>Claude Code</h3>
+        <pre>claude mcp add --transport http business-score {mcp_url}{f' \\{chr(10)}  --header "Authorization: Key YOUR_API_KEY"' if is_posit_connect else ""}</pre>
+
+        <h3>Claude Desktop</h3>
+        <p>Add to your Claude Desktop config file:</p>
+        <pre>{{
+  "mcpServers": {{
+    "business-score": {{
+      "url": "{mcp_url}"{f',{chr(10)}      "headers": {{{chr(10)}        "Authorization": "Key YOUR_API_KEY"{chr(10)}      }}' if is_posit_connect else ""}
+    }}
+  }}
+}}</pre>
+
+        <h2>Available Tools ({len(tool_info)} total)</h2>
+        {tools_html}
+
+        <h2>Data Source</h2>
+        <p>Scores are generated from US Census Bureau County Business Patterns (2022) data,
+        using a Random Forest model trained on salary, economic momentum, and establishment density features.</p>
+
+        <p>Data loaded: <strong>{"Yes" if LOOKUP_DATA else "No"}</strong>
+        {f" ({len(STATES)} states)" if STATES else ""}</p>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html)
+
+
+# ASGI app for deployment
 mcp_app = mcp.http_app(path="/mcp")
-app = FastAPI(
-    title="Business Opportunity Score MCP Server",
-    lifespan=mcp_app.lifespan,
-)
-app.mount("/", mcp_app)
+app = mcp_app
 
 
 if __name__ == "__main__":

@@ -87,28 +87,8 @@ except FileNotFoundError:
     pass
 
 
-@mcp.tool(
-    description="""
-    Get the business opportunity score for a specific state, corporation type, and employee size.
-
-    The score (0-100) represents the relative business opportunity based on:
-    - Average salary levels (40% weight)
-    - Economic momentum/payroll growth (35% weight)
-    - Establishment density (25% weight)
-
-    Higher scores indicate more favorable business conditions.
-
-    Returns the score along with supporting data including confidence level,
-    number of establishments, total employees, and average salary.
-    """
-)
-def get_opportunity_score(
-    state: Annotated[str, "US State name (e.g., 'California', 'Texas', 'New York')"],
-    corp_type: Annotated[str, "Corporation type: c-corp, s-corp, sole-proprietor, partnership, nonprofit, government, other"],
-    emp_size: Annotated[str, "Employee size category: 1-4, 5-9, 10-19, 20-49, 50-99, 100-249, 250-499, 500-999, 1000+"],
-) -> dict:
-    """Get business opportunity score for the specified parameters."""
-
+def _get_opportunity_score_impl(state: str, corp_type: str, emp_size: str) -> dict:
+    """Internal implementation for getting opportunity score."""
     if not LOOKUP_DATA:
         return {
             "error": "Lookup table not loaded. Please ensure score_lookup.csv exists.",
@@ -160,6 +140,30 @@ def get_opportunity_score(
     }
 
 
+@mcp.tool(
+    description="""
+    Get the business opportunity score for a specific state, corporation type, and employee size.
+
+    The score (0-100) represents the relative business opportunity based on:
+    - Average salary levels (40% weight)
+    - Economic momentum/payroll growth (35% weight)
+    - Establishment density (25% weight)
+
+    Higher scores indicate more favorable business conditions.
+
+    Returns the score along with supporting data including confidence level,
+    number of establishments, total employees, and average salary.
+    """
+)
+def get_opportunity_score(
+    state: Annotated[str, "US State name (e.g., 'California', 'Texas', 'New York')"],
+    corp_type: Annotated[str, "Corporation type: c-corp, s-corp, sole-proprietor, partnership, nonprofit, government, other"],
+    emp_size: Annotated[str, "Employee size category: 1-4, 5-9, 10-19, 20-49, 50-99, 100-249, 250-499, 500-999, 1000+"],
+) -> dict:
+    """Get business opportunity score for the specified parameters."""
+    return _get_opportunity_score_impl(state, corp_type, emp_size)
+
+
 def _interpret_score(score: float) -> str:
     """Provide a human-readable interpretation of the score."""
     if score >= 80:
@@ -174,11 +178,8 @@ def _interpret_score(score: float) -> str:
         return "Limited - Challenging business environment"
 
 
-@mcp.tool(
-    description="List all valid US states available in the dataset. Use these exact values when calling get_opportunity_score."
-)
-def list_states() -> dict:
-    """Get list of all available states."""
+def _list_states_impl() -> dict:
+    """Internal implementation for listing states."""
     if not STATES:
         return {"error": "Data not loaded"}
 
@@ -191,10 +192,15 @@ def list_states() -> dict:
 
 
 @mcp.tool(
-    description="List all valid corporation types. Use these codes when calling get_opportunity_score."
+    description="List all valid US states available in the dataset. Use these exact values when calling get_opportunity_score."
 )
-def list_corp_types() -> dict:
-    """Get list of all available corporation types."""
+def list_states() -> dict:
+    """Get list of all available states."""
+    return _list_states_impl()
+
+
+def _list_corp_types_impl() -> dict:
+    """Internal implementation for listing corp types."""
     if not CORP_TYPES:
         return {"error": "Data not loaded"}
 
@@ -218,10 +224,15 @@ def list_corp_types() -> dict:
 
 
 @mcp.tool(
-    description="List all valid employee size categories. Use these codes when calling get_opportunity_score."
+    description="List all valid corporation types. Use these codes when calling get_opportunity_score."
 )
-def list_emp_sizes() -> dict:
-    """Get list of all available employee size categories."""
+def list_corp_types() -> dict:
+    """Get list of all available corporation types."""
+    return _list_corp_types_impl()
+
+
+def _list_emp_sizes_impl() -> dict:
+    """Internal implementation for listing employee sizes."""
     if not EMP_SIZES:
         return {"error": "Data not loaded"}
 
@@ -233,6 +244,14 @@ def list_emp_sizes() -> dict:
         "emp_sizes": sorted_sizes,
         "note": "Ranges represent number of employees at establishment"
     }
+
+
+@mcp.tool(
+    description="List all valid employee size categories. Use these codes when calling get_opportunity_score."
+)
+def list_emp_sizes() -> dict:
+    """Get list of all available employee size categories."""
+    return _list_emp_sizes_impl()
 
 
 @mcp.tool(
@@ -280,19 +299,8 @@ def compare_states(
     }
 
 
-@mcp.tool(
-    description="""
-    Get the top N states by opportunity score for a specific corporation type and employee size.
-    Useful for finding the best locations to establish or expand a business.
-    """
-)
-def top_states(
-    corp_type: Annotated[str, "Corporation type: c-corp, s-corp, sole-proprietor, partnership, nonprofit, government, other"],
-    emp_size: Annotated[str, "Employee size category: 1-4, 5-9, 10-19, 20-49, 50-99, 100-249, 250-499, 500-999, 1000+"],
-    n: Annotated[int, "Number of top states to return (default: 10)"] = 10,
-) -> dict:
-    """Get top N states by opportunity score."""
-
+def _top_states_impl(corp_type: str, emp_size: str, n: int = 10) -> dict:
+    """Internal implementation for getting top states."""
     matching = []
     corp_key = corp_type.lower().strip()
     emp_key = emp_size.lower().strip()
@@ -324,6 +332,51 @@ def top_states(
         "top_states": matching[:n],
         "total_available": len(matching)
     }
+
+
+@mcp.tool(
+    description="""
+    Get the top N states by opportunity score for a specific corporation type and employee size.
+    Useful for finding the best locations to establish or expand a business.
+    """
+)
+def top_states(
+    corp_type: Annotated[str, "Corporation type: c-corp, s-corp, sole-proprietor, partnership, nonprofit, government, other"],
+    emp_size: Annotated[str, "Employee size category: 1-4, 5-9, 10-19, 20-49, 50-99, 100-249, 250-499, 500-999, 1000+"],
+    n: Annotated[int, "Number of top states to return (default: 10)"] = 10,
+) -> dict:
+    """Get top N states by opportunity score."""
+    return _top_states_impl(corp_type, emp_size, n)
+
+
+@mcp.custom_route("/test", methods=["GET"])
+async def test_tool(request: Request):
+    """Test endpoint to try tools directly."""
+    from starlette.responses import JSONResponse
+
+    try:
+        tool = request.query_params.get("tool", "get_opportunity_score")
+        state = request.query_params.get("state", "")
+        corp_type = request.query_params.get("corp_type", "")
+        emp_size = request.query_params.get("emp_size", "")
+
+        if tool == "get_opportunity_score" and state and corp_type and emp_size:
+            result = _get_opportunity_score_impl(state, corp_type, emp_size)
+        elif tool == "list_states":
+            result = _list_states_impl()
+        elif tool == "list_corp_types":
+            result = _list_corp_types_impl()
+        elif tool == "list_emp_sizes":
+            result = _list_emp_sizes_impl()
+        elif tool == "top_states" and corp_type and emp_size:
+            n = int(request.query_params.get("n", "10"))
+            result = _top_states_impl(corp_type, emp_size, n)
+        else:
+            result = {"error": "Missing required parameters"}
+
+        return JSONResponse(result)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @mcp.custom_route("/", methods=["GET"])
@@ -434,6 +487,79 @@ async def landing_page(request: Request) -> HTMLResponse:
     }}
   }}
 }}</pre>
+
+        <h2>Try It Out</h2>
+        <div class="test-form">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                <div>
+                    <label for="state"><strong>State:</strong></label><br>
+                    <select id="state" style="padding: 0.5rem; min-width: 150px;">
+                        <option value="">Select state...</option>
+                        {chr(10).join(f'<option value="{s}">{s}</option>' for s in sorted(STATES)) if STATES else '<option value="California">California</option>'}
+                    </select>
+                </div>
+                <div>
+                    <label for="corp_type"><strong>Corporation Type:</strong></label><br>
+                    <select id="corp_type" style="padding: 0.5rem; min-width: 150px;">
+                        <option value="">Select type...</option>
+                        {chr(10).join(f'<option value="{c}">{c}</option>' for c in sorted(CORP_TYPES)) if CORP_TYPES else '<option value="c-corp">c-corp</option>'}
+                    </select>
+                </div>
+                <div>
+                    <label for="emp_size"><strong>Employee Size:</strong></label><br>
+                    <select id="emp_size" style="padding: 0.5rem; min-width: 150px;">
+                        <option value="">Select size...</option>
+                        {chr(10).join(f'<option value="{e}">{e}</option>' for e in ["1-4", "5-9", "10-19", "20-49", "50-99", "100-249", "250-499", "500-999", "1000+"] if e in EMP_SIZES) if EMP_SIZES else '<option value="10-19">10-19</option>'}
+                    </select>
+                </div>
+            </div>
+            <button onclick="testScore()" style="padding: 0.5rem 1rem; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Get Opportunity Score
+            </button>
+            <div id="result" style="margin-top: 1rem;"></div>
+        </div>
+
+        <script>
+        async function testScore() {{
+            const state = document.getElementById('state').value;
+            const corpType = document.getElementById('corp_type').value;
+            const empSize = document.getElementById('emp_size').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!state || !corpType || !empSize) {{
+                resultDiv.innerHTML = '<div class="warning">Please select all fields</div>';
+                return;
+            }}
+
+            resultDiv.innerHTML = '<em>Loading...</em>';
+
+            try {{
+                const url = `${{window.location.pathname.replace(/\\/$/, '')}}/test?tool=get_opportunity_score&state=${{encodeURIComponent(state)}}&corp_type=${{encodeURIComponent(corpType)}}&emp_size=${{encodeURIComponent(empSize)}}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {{
+                    resultDiv.innerHTML = `<div class="warning">${{data.error}}</div>`;
+                }} else {{
+                    resultDiv.innerHTML = `
+                        <div class="endpoint">
+                            <strong>Score: ${{data.score}}/100</strong> (${{data.interpretation}})<br>
+                            <strong>Confidence:</strong> ${{data.confidence}}<br>
+                            <strong>Establishments:</strong> ${{data.details?.establishments?.toLocaleString() || 'N/A'}}<br>
+                            <strong>Employees:</strong> ${{data.details?.total_employees?.toLocaleString() || 'N/A'}}<br>
+                            <strong>Avg Salary:</strong> $${{Math.round(data.details?.avg_salary_thousands * 1000)?.toLocaleString() || 'N/A'}}
+                        </div>
+                        <details style="margin-top: 0.5rem;">
+                            <summary>Raw JSON</summary>
+                            <pre>${{JSON.stringify(data, null, 2)}}</pre>
+                        </details>
+                    `;
+                }}
+            }} catch (err) {{
+                resultDiv.innerHTML = `<div class="warning">Error: ${{err.message}}</div>`;
+            }}
+        }}
+        </script>
 
         <h2>Available Tools ({len(tool_info)} total)</h2>
         {tools_html}

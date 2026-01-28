@@ -1,0 +1,176 @@
+---
+title: "Business Opportunity Score Model Overview"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(tidyverse)
+```
+
+## Overview
+
+This report summarizes the Business Opportunity Score model, which predicts business opportunity scores based on US Census Bureau County Business Patterns data.
+
+## Data Source
+
+- **Source**: US Census Bureau County Business Patterns (2022)
+- **Model**: Random Forest regression using tidymodels
+- **Features**: Average salary, economic momentum, establishment density
+
+## Score Methodology
+
+The opportunity score (0-100) combines three factors:
+
+| Factor | Weight | Description |
+|--------|--------|-------------|
+| Salary Score | 40% | Normalized average salary within group |
+| Momentum Score | 35% | Payroll growth indicator (Q1 annualized vs actual) |
+| Density Score | 25% | Log-normalized establishment count |
+
+```{r load-data}
+scores <- read_csv("score_lookup.csv", show_col_types = FALSE)
+```
+
+## Summary Statistics
+
+```{r summary-stats}
+summary_stats <- scores %>%
+  summarise(
+    `Total Records` = n(),
+    `States` = n_distinct(state),
+    `Corp Types` = n_distinct(corp_type),
+    `Employee Sizes` = n_distinct(emp_size),
+    `Mean Score` = round(mean(score), 1),
+    `Median Score` = round(median(score), 1),
+    `Min Score` = min(score),
+    `Max Score` = max(score)
+  )
+
+knitr::kable(t(summary_stats), col.names = "Value")
+```
+
+## Score Distribution
+
+```{r score-distribution, fig.width=8, fig.height=4}
+ggplot(scores, aes(x = score)) +
+  geom_histogram(binwidth = 5, fill = "#0066cc", color = "white", alpha = 0.8) +
+  labs(
+    title = "Distribution of Opportunity Scores",
+    x = "Score",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+## Scores by Corporation Type
+
+```{r by-corp-type, fig.width=8, fig.height=5}
+scores %>%
+  group_by(corp_type) %>%
+  summarise(
+    mean_score = mean(score),
+    median_score = median(score),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = reorder(corp_type, mean_score), y = mean_score)) +
+  geom_col(fill = "#0066cc", alpha = 0.8) +
+  geom_text(aes(label = round(mean_score, 1)), hjust = -0.2, size = 3) +
+  coord_flip() +
+  labs(
+    title = "Average Score by Corporation Type",
+    x = NULL,
+    y = "Mean Score"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+```
+
+## Scores by Employee Size
+
+```{r by-emp-size, fig.width=8, fig.height=5}
+size_order <- c("1-4", "5-9", "10-19", "20-49", "50-99", "100-249", "250-499", "500-999", "1000+")
+
+scores %>%
+  mutate(emp_size = factor(emp_size, levels = size_order)) %>%
+  group_by(emp_size) %>%
+  summarise(
+    mean_score = mean(score),
+    .groups = "drop"
+  ) %>%
+  ggplot(aes(x = emp_size, y = mean_score)) +
+  geom_col(fill = "#28a745", alpha = 0.8) +
+  geom_text(aes(label = round(mean_score, 1)), vjust = -0.5, size = 3) +
+  labs(
+    title = "Average Score by Employee Size",
+    x = "Employee Size",
+    y = "Mean Score"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  ylim(NA, max(scores$score) * 1.1)
+```
+
+## Top 10 States (Overall Average)
+
+```{r top-states, fig.width=8, fig.height=5}
+scores %>%
+  group_by(state) %>%
+  summarise(mean_score = mean(score), .groups = "drop") %>%
+  slice_max(mean_score, n = 10) %>%
+  ggplot(aes(x = reorder(state, mean_score), y = mean_score)) +
+  geom_col(fill = "#17a2b8", alpha = 0.8) +
+  geom_text(aes(label = round(mean_score, 1)), hjust = -0.2, size = 3) +
+  coord_flip() +
+  labs(
+    title = "Top 10 States by Average Opportunity Score",
+    x = NULL,
+    y = "Mean Score"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold")) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+```
+
+## Confidence Distribution
+
+```{r confidence, fig.width=8, fig.height=4}
+scores %>%
+  count(confidence) %>%
+  mutate(confidence = factor(confidence, levels = c("low", "medium", "high"))) %>%
+  ggplot(aes(x = confidence, y = n, fill = confidence)) +
+  geom_col(alpha = 0.8) +
+  geom_text(aes(label = n), vjust = -0.5, size = 4) +
+  scale_fill_manual(values = c("low" = "#dc3545", "medium" = "#ffc107", "high" = "#28a745")) +
+  labs(
+    title = "Records by Confidence Level",
+    x = "Confidence",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "none"
+  ) +
+  ylim(NA, max(table(scores$confidence)) * 1.15)
+```
+
+## Score Interpretation
+
+| Score Range | Interpretation |
+|-------------|----------------|
+| 80-100 | Excellent - Strong business opportunity indicators |
+| 60-79 | Good - Above average business conditions |
+| 40-59 | Moderate - Average business environment |
+| 20-39 | Fair - Below average conditions |
+| 0-19 | Limited - Challenging business environment |
+
+---
+
+*Report generated on `r format(Sys.time(), "%Y-%m-%d %H:%M:%S")`*

@@ -1,7 +1,7 @@
 {
   "$schema": "https://cdn.posit.co/publisher/schemas/posit-publishing-schema-v3.json",
-  "type": "python-mcp",
-  "entrypoint": "server:mcp",
+  "type": "python-fastapi",
+  "entrypoint": "server",
   "validate": true,
   "title": "Business Opportunity Score MCP Server",
   "description": "MCP server providing business opportunity scores based on US Census Bureau data.",

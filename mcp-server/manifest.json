@@ -1,17 +1,57 @@
 {
-  "$schema": "https://cdn.posit.co/publisher/schemas/posit-publishing-schema-v3.json",
-  "type": "python-fastapi",
-  "entrypoint": "server",
-  "validate": true,
-  "title": "Business Opportunity Score MCP Server",
-  "description": "MCP server providing business opportunity scores based on US Census Bureau data.",
-  "python": {
-    "version": "3.11",
-    "package_manager": "pip"
+  "version": 1,
+  "locale": "C.UTF-8",
+  "metadata": {
+    "appmode": "python-fastapi",
+    "entrypoint": "server"
   },
-  "files": [
-    "server.py",
-    "requirements.txt",
-    "score_lookup.csv"
-  ]
+  "python": {
+    "version": "3.13.7",
+    "package_manager": {
+      "name": "pip",
+      "version": "25.2",
+      "package_file": "requirements.txt"
+    }
+  },
+  "files": {
+    "requirements.txt": {
+      "checksum": "a62269adc66bcdac5b50e74cce46f830"
+    },
+    ".claude/settings.local.json": {
+      "checksum": "fa155f418955e88b4d140ae3adde94fc"
+    },
+    ".posit/publish/deployments/deployment-OOVF.toml": {
+      "checksum": "19c3069097e015cb740b39bd5ba4a634"
+    },
+    ".posit/publish/deployments/deployment-RTDK.toml": {
+      "checksum": "5a97becf599756b2d826dab73344c71b"
+    },
+    ".posit/publish/deployments/renv.lock": {
+      "checksum": "550a2fc72f57c5c8b6dda11286c8c6a3"
+    },
+    ".posit/publish/mcp-zip-lookup-UGDG.toml": {
+      "checksum": "bcfbe3e3edd13ce9e7c9f78a6d2d2bc1"
+    },
+    ".posit/publish/model-overview-zip-lookup-IJV6.toml": {
+      "checksum": "c31154ec094cce866eea2bfd2658f9b1"
+    },
+    "census.csv": {
+      "checksum": "1a8cbf39e5a6ce7b525deb9209a1db3c"
+    },
+    "model.R": {
+      "checksum": "2fe51fa7faca1695a56c44f8109cd634"
+    },
+    "model_overview.Rmd": {
+      "checksum": "47d6d6515fd0f04387fe990edbf0da98"
+    },
+    "model_overview.html": {
+      "checksum": "0a554af85951eda9b923e7ae6fdb5778"
+    },
+    "score_lookup.csv": {
+      "checksum": "28db0443ce505f4adae226cc2d36c62e"
+    },
+    "server.py": {
+      "checksum": "43385ca10856b19aee0a4f7c65da7d8d"
+    }
+  }
 }
